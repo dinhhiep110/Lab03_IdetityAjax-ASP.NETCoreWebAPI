@@ -20,6 +20,9 @@
                 ProductName
             </th>
             <th>
+                Category
+            </th>
+            <th>
                 UnitPrice
             </th>
             <th>
@@ -48,12 +51,15 @@
                                 ${product.productName}
                         </td>
                         <td>
+                                ${product.category.categoryName}
+                        </td>
+                        <td>
                                 ${product.unitPrice}
                         </td>
                         <td>
                                 ${product.unitsInStock}
                          <td>
-                                <a href="Product/Details/${product.productId}">Details</a>||<a href="Product/Delete/${product.productId}">Delete</a>
+                                <a href="/Product/Details/${product.productId}">Details</a>||<a href="/Product/Delete/${product.productId}">Delete</a>
                         </td>
                     </tr>`;
                     $("table tbody").append(newRow);

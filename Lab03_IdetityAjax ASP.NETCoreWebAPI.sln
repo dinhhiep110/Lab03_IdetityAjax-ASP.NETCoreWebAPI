@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "DataAccess\Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductManagementAPI", "ProductManagementAPI\ProductManagementAPI.csproj", "{3F3F7212-C8DE-4E98-8632-33563C71E73F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityAjaxClient", "IdentityAjaxClient\IdentityAjaxClient.csproj", "{283326A4-C950-4301-A3D3-3EFD19B435AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityAjaxClient", "IdentityAjaxClient\IdentityAjaxClient.csproj", "{283326A4-C950-4301-A3D3-3EFD19B435AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

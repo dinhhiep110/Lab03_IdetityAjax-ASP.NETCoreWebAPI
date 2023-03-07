@@ -13,7 +13,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
         "applicationUrl": "https://localhost:7276;http://localhost:5276",
-      "launchUrl": "Product",
+      "launchUrl": "Product/Index",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
