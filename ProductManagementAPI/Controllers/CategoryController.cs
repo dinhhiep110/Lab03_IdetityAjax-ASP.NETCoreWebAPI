@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 
@@ -19,6 +20,6 @@ namespace ProductManagementAPI.Controllers
         }
 
         [HttpGet]
-        public List<Category> GetProducts() => productsRepository.GetCategories();
+        public List<CategoryDto> GetProducts() => _mapper.Map<List<CategoryDto>>(productsRepository.GetCategories());
     }
 }

@@ -25,8 +25,7 @@ namespace BusinessObjects
             {
                 var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
                 optionsBuilder.UseSqlServer(config.GetConnectionString("MyStoreDB"));
-                //Use direct Connection String
-                //optionsBuilder.UseSqlServer("server=DESKTOP-VPGGRSG\\SQLEXPRESS;database=MyStoreDB;uid=duyhiep;pwd=12345");
+                //optionsBuilder.UseSqlServer("server=DESKTOP-950JCBB;database=MyStoreDB;uid=duyhiep;pwd=12345");
             }
         }
 

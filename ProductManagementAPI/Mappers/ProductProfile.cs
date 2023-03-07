@@ -13,6 +13,10 @@ namespace ProductManagementAPI.Mappers
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
                 .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
                 .ForMember(dest => dest.UnitsInStock, opt => opt.MapFrom(src => src.UnitsInStock));
+
+            CreateMap<Product, ProductDto>().ReverseMap();
+
+            CreateMap<Category, CategoryDto>().ReverseMap();
         }
     }
 }

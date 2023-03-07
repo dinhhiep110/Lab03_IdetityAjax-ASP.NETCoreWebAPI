@@ -20,5 +20,7 @@ namespace BusinessObjects.Dtos
 
         [Required]
         public decimal UnitPrice { get; set; }
+
+        public CategoryDto? Category { get; set; }
     }
 }

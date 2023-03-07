@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Headers;
+using BusinessObjects;
+using System.Text.Json;
 using BusinessObjects.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,158 +11,117 @@ namespace IdentityAjaxClient.Controllers
     [Authorize]
     public class ProductController : Controller
     {
-        private readonly ILogger<ProductController> _logger;
-        private readonly HttpClient? _client = null;
-        private string url = "https://localhost:7189/api/Products/";
+        private readonly HttpClient _httpClient;
 
-        public ProductController(ILogger<ProductController> logger)
+        //private IProductRepository productsRepository = new ProductRepository();
+
+        private string ProductApiUrl;
+
+        private string CategoryApiUrl;
+
+        public ProductController()
         {
-            _logger = logger;
-            _client = new HttpClient();
+            _httpClient = new HttpClient();
             var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-            _client.DefaultRequestHeaders.Accept.Add(contentType);
+            _httpClient.DefaultRequestHeaders.Accept.Add(contentType);
+            ProductApiUrl = "https://localhost:7189/api/Products";
+            CategoryApiUrl = "https://localhost:7189/api/Category";
         }
-
-        public async Task<IActionResult> Index()
-        {
-            List<ProductDto> productDtos = new List<ProductDto>();
-            HttpResponseMessage response = await _client.GetAsync(url);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                productDtos = response.Content.ReadFromJsonAsync<List<ProductDto>>().Result;
-            }
-            return View(productDtos);
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
 
         [HttpGet]
-        public async Task<IActionResult> CreateAsync()
+        public async Task<IActionResult> Index()
         {
-            ViewBag.Categories = await GetCategories();
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            ViewData["Category"] = await GetCategories();
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddProduct([FromForm] ProductDto product)
+        {
+            int categoryId = product.CategoryId;
+
+            using (var respone = await _httpClient.PostAsJsonAsync(ProductApiUrl, product))
+            {
+                string apiResponse = await respone.Content.ReadAsStringAsync();
+            }
+            return Redirect("/Product/Index");
+        }
+
+        public async Task<IActionResult> EditProduct([FromForm] ProductDto product)
+        {
+            using (var respone = await _httpClient.PutAsJsonAsync(ProductApiUrl + "/id?id=" + product.ProductId, product))
+            {
+                string apiResponse = await respone.Content.ReadAsStringAsync();
+            }
+            return Redirect("/Product/Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+
+            ViewData["Category"] = await GetCategories();
+            List<ProductDto> products = await GetProducts();
+            ProductDto product = products.FirstOrDefault(p => p.ProductId == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int? id)
+        {
+            List<ProductDto> products = await GetProducts();
+            ProductDto product = products.FirstOrDefault(p => p.ProductId == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
+
+        }
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            List<ProductDto> products = await GetProducts();
+            ProductDto product = products.FirstOrDefault(p => p.ProductId == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            String url = ProductApiUrl + "/id?id=" + id;
+            await _httpClient.DeleteAsync(url);
+            return Redirect("/Product/Index");
         }
 
         private async Task<List<CategoryDto>> GetCategories()
         {
-            List<CategoryDto> categoryDtos = new List<CategoryDto>();
-            HttpResponseMessage response = await _client.GetAsync(url + "Categories");
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            HttpResponseMessage response = await _httpClient.GetAsync(CategoryApiUrl);
+            string strData = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions
             {
-                categoryDtos = response.Content.ReadFromJsonAsync<List<CategoryDto>>().Result;
-            }
-
-            return categoryDtos;
+                PropertyNameCaseInsensitive = true
+            };
+            return JsonSerializer.Deserialize<List<CategoryDto>>(strData, options);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromForm] ProductDto model)
+        private async Task<List<ProductDto>> GetProducts()
         {
-            ViewBag.Categories = await GetCategories();
-            if (!ModelState.IsValid)
+            HttpResponseMessage response = await _httpClient.GetAsync(ProductApiUrl);
+            string strData = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions
             {
-                return View(model);
-            }
-            HttpResponseMessage response = await _client.PostAsJsonAsync(url + "Create", model);
-            var result = response.Content.ReadFromJsonAsync<bool>().Result;
-            if (response.StatusCode == System.Net.HttpStatusCode.OK && result)
-            {
-                ViewData["msg"] = "Create Success!";
-            }
-            else
-            {
-                ViewData["msg"] = "Create Failed. Try again!";
-            }
-
-            return View(model);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> DeleteAsync(int? id)
-        {
-            var product = await GetByIdAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            HttpResponseMessage response = await _client.DeleteAsync(url + $"Delete/{id}");
-            var result = response.Content.ReadFromJsonAsync<bool>().Result;
-            if (response.StatusCode == System.Net.HttpStatusCode.OK && result)
-            {
-                TempData["msg"] = "Delete Success!";
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            else
-
-            {
-                TempData["msg"] = "Delete Failed. Try again!";
-            }
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> UpdateAsync(int? id)
-        {
-            var product = await GetByIdAsync(id);
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.Categories = await GetCategories();
-
-            return View(product);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UpdateAsync([FromForm] ProductDto model)
-        {
-            ViewBag.Categories = await GetCategories();
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            HttpResponseMessage response = await _client.PutAsJsonAsync(url + "Update", model);
-            var result = response.Content.ReadFromJsonAsync<bool>().Result;
-            if (response.StatusCode == System.Net.HttpStatusCode.OK && result)
-            {
-                ViewData["msg"] = "Update Success!";
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                ViewData["msg"] = "Update Failed. Try again!";
-            }
-
-            return View(model);
-        }
-
-        private async Task<ProductDto?> GetByIdAsync(int? id)
-        {
-            if (id == null) return null;
-
-            HttpResponseMessage response = await _client.GetAsync(url + id);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                return response.Content.ReadFromJsonAsync<ProductDto>().Result;
-            }
-
-            return null;
+                PropertyNameCaseInsensitive = true
+            };
+            return JsonSerializer.Deserialize<List<ProductDto>>(strData, options);
         }
     }
 }

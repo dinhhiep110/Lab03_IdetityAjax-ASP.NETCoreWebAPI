@@ -21,7 +21,7 @@ namespace ProductManagementAPI.Controllers
 
         //Get: api/Products
         [HttpGet]
-        public List<Product> GetProducts() => productsRepository.GetProducts();
+        public List<ProductDto> GetProducts() => _mapper.Map<List<ProductDto>>(productsRepository.GetProducts());
 
 
         //Post :ProductsController/Products
