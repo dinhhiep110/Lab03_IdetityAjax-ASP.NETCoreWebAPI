@@ -59,7 +59,7 @@
                         <td>
                                 ${product.unitsInStock}
                          <td>
-                                <a href="/Product/Details/${product.productId}">Details</a>||<a href="/Product/Delete/${product.productId}">Delete</a>
+                                <a href="@Url.Content("~/Product/Details?id=${product.productId}")">Details </a> | <a href="@Url.Content("~/Product/Delete?id=${product.productId}")"> Delete</a>
                         </td>
                     </tr>`;
                     $("table tbody").append(newRow);
